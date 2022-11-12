@@ -82,7 +82,7 @@
   class MySieve extends Sieve {
     protected onFiltering(n: bigint) {current = n;}
     protected onNotPrime(n: bigint) {
-      if (!primesOnly) numbers.push({v: n});
+      if (!primesOnly) numbers.push({v: n, paused: !wiggling});
       numbers = numbers;
     }
     protected onPrime(p: bigint) {
@@ -112,7 +112,7 @@
           newNumbers.push({v: prime, prime: true, paused: !wiggling});
         } else {
           for (let v = n; v < prime; v++) {
-            newNumbers.push({v, prime: false, squeezed: true});
+            newNumbers.push({v, prime: false, squeezed: true, paused: !wiggling});
           }
           newNumbers.push({v: prime, prime: true, paused: !wiggling});
           n = prime
@@ -120,7 +120,7 @@
         n++;
       }
       if (current) for (let v = n; v <= current; v++) {
-        newNumbers.push({v, prime: false});
+        newNumbers.push({v, prime: false, paused: !wiggling});
       }
       numbers = newNumbers;
     }
@@ -179,7 +179,7 @@
   <div id="tools">
     <div style="display: grid; grid-template-columns: 1fr 1fr;">
       <button on:click={onClickShowMode} class="ripple-button">{primesOnly ? "Showing primes only" : "Showing all"}</button>
-      <button on:click={toggleWiggling} class="ripple-button">Wiggling: {wiggling ? "on" : "off"}</button>
+      <button on:click={toggleWiggling} class="ripple-button">Animations: {wiggling ? "on" : "off"}</button>
     </div>
     <div class="button-group">
       <button disabled={generating} id="go" on:click={onClickGo} class="ripple-button">
@@ -203,7 +203,7 @@
   <section id="board">
     <div class="number">1</div>
     {#each numbers as { v, prime, paused, squeezed } (v)}
-      <div in:transin={{squeezed}} out:disappear class="number{prime ? " prime" : " not-prime"}{paused ? " paused" : ""}">{v}</div>
+      <div in:transin={{squeezed}} out:disappear class="number{prime ? " prime" : " not-prime"}{paused ? " paused" : ""}{v > 9999n ? " sm" : v > 999n ? " md" : ""}">{v}</div>
     {/each}
   </section>
 </main>
@@ -448,6 +448,14 @@
     margin: 7.5px;
   }
 
+  .number.md {
+    font-size: 1rem;
+  }
+
+  .number.sm {
+    font-size: .75rem;
+  }
+
   .number:not(.prime):not(.not-prime) {
     animation: none;
   }
@@ -459,6 +467,11 @@
     animation: 500ms ease-in-out forwards wiggle-start,
     1s ease-in-out 500ms infinite alternate wiggle;
   }
+
+  .number.paused {
+    animation: none !important;
+  }
+
   @keyframes wiggle-start {
     from {
       transform: rotate(0);
@@ -474,10 +487,6 @@
     to {
       transform: rotate(-20deg);
     }
-  }
-
-  .number.prime.paused {
-    animation-play-state:paused !important;
   }
 
   .number.not-prime {
