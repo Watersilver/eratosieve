@@ -4,14 +4,62 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"/>
   <style>
+    body {
+      overflow: hidden;
+      font-family: "Roboto","Helvetica","Arial", sans-serif;
+    }
     main {
-      display: flex;
-      flex-grow: 1;
+      display: grid;
+      grid-auto-flow: column;
+      gap: 20px;
+    }
+    a {
+      text-decoration: none;
+      color: rgb(25, 118, 210);
+    }
+    header {
+      background-color: rgb(25, 118, 210);
+      color: white;
+      padding: 0 20px;
+    }
+    main>a, footer>a {
+      display: grid;
+      font-size: 2rem;
+      align-items: center;
+      justify-items: center;
+    }
+    header a {
+      color: white;
+      text-decoration: underline;
     }
     main>a {
+      box-shadow: 0 0 5px lightgray;
+      background-color: white;
+    }
+    main>a {
+      background-color: #fab;
+    }
+    main>a:nth-child(2n) {
+      background-color: #baf;
+    }
+    main>a:nth-child(2n + 3) {
+      background-color: #def;
+    }
+    footer {
+      min-height: 40px;
+      display: grid;
+      background-color: aliceblue;
+    }
 
+    .hoverable {
+      transition: transform .5s;
+      transform: scale(1);
+    }
+    .hoverable:hover {
+      transform: scale(1.05);
+      z-index: 2;
     }
   </style>
 
@@ -19,15 +67,15 @@
 </head>
 <body style="position: absolute; top: 0; left: 0; bottom: 0; right: 0; display: grid; grid-template-rows: auto 1fr auto;">
   <header>
-    <h1>Implementations of the <a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes">sieve of eratosthenes algorithm</a> to find prime numbers using different front-end frameworks for comparison.</h1>
+    <h1>Implementations of the <a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes">sieve of Eratosthenes algorithm</a> to find prime numbers using different front-end frameworks for comparison.</h1>
   </header>
   <main>
-    <a href="./react.html">react</a>
-    <a href="./purejs.html">no framework</a>
-    <a href="./svelte.html">svelte</a>
+    <a class="hoverable" href="./react.html">react</a>
+    <a class="hoverable" href="./purejs.html">no framework</a>
+    <a class="hoverable" href="./svelte.html">svelte</a>
   </main>
   <footer>
-    <a href="https://github.com/Watersilver">my github</a>
+    <a class="hoverable" href="https://github.com/Watersilver">my github</a>
   </footer>
 </body>
 </html>
