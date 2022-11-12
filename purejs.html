@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pure JS sieve</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"/>
+
+  <style>
+    :root {
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+
+    main {
+      text-align: center;
+      display: grid;
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      top: 8px;
+      bottom: 8px;
+      grid-template-rows: auto auto auto 1fr;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Roboto","Helvetica","Arial",sans-serif;
+      font-weight: 300;
+      font-size: 6rem;
+      line-height: 1.167;
+      letter-spacing: -0.01562em;
+    }
+
+    #explanation {
+      transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+      border-radius: 4px;
+      box-shadow: none;
+      font-family: "Roboto","Helvetica","Arial", sans-serif;
+      font-weight: 400;
+      font-size: 0.875rem;
+      line-height: 1.43;
+      letter-spacing: 0.01071em;
+      background-color: rgb(229, 246, 253);
+      display: flex;
+      padding: 6px 16px;
+      color: rgb(1, 67, 97);
+      text-align: start;
+    }
+
+    .alert-icon {
+      color: #03a9f4;
+      margin-right: 12px;
+      padding: 7px 0;
+      display: flex;
+      font-size: 22px;
+      opacity: 0.9;
+    }
+
+    .svg-icon-root {
+      user-select: none;
+      width: 1em;
+      height: 1em;
+      display: inline-block;
+      fill: currentColor;
+      flex-shrink: 0;
+      transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+      font-size: inherit;
+    }
+
+    .svg-icon-root.small {
+      font-size: 1.25rem;
+    }
+
+    .svg-icon-root.medium {
+      font-size: 1.5rem;
+    }
+
+    .alert-msg {
+      padding: 8px 0;
+      min-width: 0;
+      overflow: auto;
+    }
+
+    .alert-title {
+      margin: 0;
+      font-family: "Roboto","Helvetica","Arial",sans-serif;
+      font-weight: 400;
+      font-size: 1rem;
+      line-height: 1.5;
+      letter-spacing: 0.00938em;
+      margin-bottom: 0.35em;
+      font-weight: 500;
+      margin-top: -2px;
+    }
+
+    .alert-action {
+      display: flex;
+      align-items: flex-start;
+      padding: 4px 0 0 16px;
+      margin-left: auto;
+      margin-right: -8px;
+    }
+
+    .close-button-root {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      background-color: transparent;
+      outline: 0;
+      border: 0;
+      margin: 0;
+      border-radius: 0;
+      padding: 0;
+      cursor: pointer;
+      user-select: none;
+      vertical-align: middle;
+      appearance: none;
+      text-decoration: none;
+      color: inherit;
+      text-align: center;
+      flex: 0 0 auto;
+      font-size: 1.5rem;
+      padding: 8px;
+      border-radius: 50%;
+      overflow: visible;
+      color: rgba(0, 0, 0, 0.54);
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+      color: inherit;
+      padding: 5px;
+      font-size: 1.125rem;
+    }
+
+    .collapser {
+      height: auto;
+      overflow: visible;
+      transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    }
+
+    #tools {
+      display: grid;
+      align-items: center;
+      grid-template-columns: 1fr auto 1fr;
+      margin: 20px;
+      gap: 12px;
+    }
+
+    .ripple-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      background-color: transparent;
+      outline: 0;
+      border: 0;
+      margin: 0;
+      border-radius: 0;
+      padding: 0;
+      cursor: pointer;
+      user-select: none;
+      vertical-align: middle;
+      appearance: none;
+      text-decoration: none;
+      color: inherit;
+      font-family: "Roboto","Helvetica","Arial",sans-serif;
+      font-weight: 500;
+      font-size: 0.875rem;
+      line-height: 1.75;
+      letter-spacing: 0.02857em;
+      text-transform: uppercase;
+      padding: 6px 8px;
+      border-radius: 4px;
+      transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+      color: #1976d2;
+
+      position: relative;
+      overflow: hidden;
+      --ripple-col: #1976d231;
+    }
+    .ripple-button:hover {
+      background-color: #1976d20a;
+    }
+
+    .button-group {
+      display: inline-flex;
+      overflow: hidden;
+      border-radius: 4px;
+      box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);
+    }
+    .button-group>.ripple-button {
+      border-radius: 0;
+      border-right: 1px solid #0001;
+      color: #fff;
+      background-color: #1976d2;
+      padding: 6px 16px;
+      --ripple-col: #ffffff31;
+    }
+    .button-group>.ripple-button:hover {
+      background-color: #0b5aa8;
+    }
+    .button-group>.ripple-button.red {
+      background-color: #d32f2f;
+    }
+    .button-group>.ripple-button.red:hover {
+      background-color: #9e1c1c;
+    }
+    .button-group>.ripple-button:last-child {
+      border-right: 0;
+    }
+    .button-group>.ripple-button:disabled, .button-group>.ripple-button.red:disabled {
+      background-color: gainsboro;
+      color: darkgray;
+      cursor: auto;
+    }
+
+    span.ripple {
+      position: absolute; /* The absolute position we mentioned earlier */
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 600ms linear;
+      background-color: var(--ripple-col);
+    }
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    #board {
+      overflow: auto;
+      color: rgba(0, 0, 0, 0.87);
+      transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+      border-radius: 4px;
+      box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);
+      overflow: auto;
+      padding: 8.5px;
+
+      display: flex;
+      align-content: start;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: grid;
+      justify-items: center;
+      align-items: center;
+      overflow: hidden;
+      font-size: 1.25rem;
+      user-select: none;
+      margin: 7.5px;
+
+      animation: appear 400ms forwards ease-in-out;
+    }
+    .number.squeezed {
+      width: 0;
+      height: 0;
+      margin: 0;
+      animation: squeeze 200ms forwards ease-in-out;
+    }
+    @keyframes appear {
+      to {
+        transform: scale(1) rotate(0);
+      }
+    }
+    @keyframes disappear {
+      to {
+        width: 0;
+        height: 0;
+        margin: 0;
+      }
+    }
+    @keyframes squeeze {
+      to {
+        width: 40px;
+        height: 40px;
+        margin: 7.5px;
+      }
+    }
+
+    .number:not(.prime):not(.not-prime) {
+      animation: none;
+    }
+
+    .number.prime {
+      background-color: red;
+      color: white;
+
+      animation: 400ms ease-in-out forwards appear,
+      500ms ease-in-out 400ms forwards wiggle-start,
+      1s ease-in-out 900ms infinite alternate wiggle;
+    }
+    @keyframes wiggle-start {
+      from {
+        transform: rotate(0);
+      }
+      to {
+        transform: rotate(20deg);
+      }
+    }
+    @keyframes wiggle {
+      from {
+        transform: rotate(20deg);
+      }
+      to {
+        transform: rotate(-20deg);
+      }
+    }
+    
+    .paused {
+      animation-play-state:paused !important;
+    }
+
+    .number.not-prime {
+      background-color: antiquewhite;
+    }
+  </style>
+
+  <script>
+    /**
+     * Implementation of sieve. Extend to implement callbacks.
+     * @abstract
+     */
+    class Sieve {
+      /**
+       * @type bigint[]
+      */
+      #primes = [];
+      /**
+       * @type bigint
+      */
+      #current = 1n;
+
+      /**
+       * @returns {Promise<unknown>}
+       */
+      async filterNext() {
+        this.#current++;
+        this.onFiltering(this.#current);
+
+        for (const prime of this.#primes) {
+          if (this.#current % prime === BigInt(0)) {
+            this.onNotPrime(this.#current);
+            return
+          }
+        }
+
+        this.#primes.push(this.#current)
+        this.onPrime(this.#current);
+      }
+
+      /**
+       * @abstract
+       * @param n {bigint}
+       * @returns {any}
+      */
+      onFiltering(n) {throw ReferenceError("Not implemented")};
+
+      /**
+       * @abstract
+       * @param p {bigint}
+       * @returns {any}
+      */
+      onPrime(p) {throw ReferenceError("Not implemented")};
+
+      /**
+       * @abstract
+       * @param p {bigint}
+       * @returns {any}
+      */
+      onNotPrime(p) {throw ReferenceError("Not implemented")};
+
+      /**
+       * @return {readonly bigint[]}
+      */
+      getPrimes() {return this.#primes;}
+
+      /**
+       * @return {bigint}
+      */
+      getCurrent() {return this.#current;}
+    }
+
+    function collapseExplanation() {
+      if (collapseExplanation.called) return;
+      collapseExplanation.called = true;
+
+      const el = document.getElementsByClassName("collapser")[0];
+      el.style.height = getComputedStyle(el).height;
+
+      setTimeout(() => {
+        el.style.height = 0;
+        el.style.overflow = "hidden";
+      });
+    }
+
+    function createRipple(event) {
+      const button = event.currentTarget;
+      const circle = document.createElement("span");
+      const diameter = Math.max(button.clientWidth, button.clientHeight);
+      const radius = diameter / 2;
+      circle.style.width = circle.style.height = `${diameter}px`;
+      circle.style.left = `${event.clientX - (button.offsetLeft + radius)}px`;
+      circle.style.top = `${event.clientY - (button.offsetTop + radius)}px`;
+      circle.classList.add("ripple");
+      button.appendChild(circle);
+
+      circle.onanimationend = () => circle.remove();
+    }
+
+    let primesOnly = false;
+    let showingCurrent = true;
+    let wiggling = true;
+    let speed = [10]; // Array so I can pass by reference
+    let t = null;
+
+    class MySieve extends Sieve {
+      onFiltering(n) {
+        if (showingCurrent) {
+          document.getElementById("current").innerText = "Current processed number: " + n.toString();
+        }
+      }
+      onNotPrime(n) {
+        if (!primesOnly) appendNumber(n);
+      }
+      onPrime(p) {
+        appendNumber(p, true);
+      }
+    }
+    const s = new MySieve();
+
+    function appendNumber(p, isPrime, nextEl) {
+      const newNumber = document.createElement("div");
+      newNumber.classList.add("number");
+      newNumber.classList.add(isPrime ? "prime" : "not-prime");
+      newNumber.innerText = p.toString();
+      newNumber.title = p.toString();
+      if (p > 999n) newNumber.style.fontSize = "1rem";
+      if (!nextEl) {
+        newNumber.style.transform = `scale(0) rotate(${Math.random() * 2.6 - 1.3}turn)`;
+        document.getElementById("board").append(newNumber);
+      } else {
+        newNumber.classList.add("squeezed");
+        document.getElementById("board").insertBefore(newNumber, nextEl);
+      }
+
+      if (!isPrime) {
+        newNumber.onanimationend = () => {
+          newNumber.killSelf = () => {
+            newNumber.killed = true;
+            newNumber.style.transform = "scale(1)"
+            newNumber.style.width = "40px"
+            newNumber.style.height = "40px"
+            newNumber.style.animation = "disappear 200ms forwards ease-in-out"
+          };
+          if (primesOnly) {
+            newNumber.killSelf();
+          }
+          newNumber.onanimationend = () => newNumber.remove();
+        }
+      } else {
+        newNumber.onanimationend = () => {
+          newNumber.wiggling = true;
+          if (!wiggling) newNumber.classList.add("paused");
+          newNumber.onanimationend = null;
+        }
+      }
+
+      return newNumber;
+    }
+
+    function onClickShowMode(target) {
+      primesOnly = !primesOnly;
+      if (primesOnly) {
+        target.innerText = "Showing primes only";
+        for (const c of document.getElementById("board").children) {
+          if (c.killSelf && !c.killed) c.killSelf();
+        }
+      } else {
+        target.innerText = "Showing all";
+        let i = 1n;
+        const squeeze = (i, el) => {
+          const n = appendNumber(i, false, el);
+        }
+        for (const p of document.getElementById("board").children) {
+          if (p.killed) continue;
+          if (p.innerText === i.toString()) {i++; continue;}
+          const prime = BigInt(p.innerText);
+          while (i < prime) squeeze(i++, p);
+        }
+        for (;i <= s.getCurrent();) squeeze(i++);
+      }
+    }
+
+    function onClickShowCurrent(target) {
+      showingCurrent = !showingCurrent;
+      if (showingCurrent) {
+        target.innerText = "Current processed number: " + s.getCurrent();
+      } else {
+        target.innerText = "Show current processed number"
+      }
+    }
+
+    function onClickGo() {
+      const next = () => {s.filterNext(); t = setTimeout(next, 400 - speed[0] * 4)};
+      next();
+      document.getElementById("go").setAttribute("disabled", "true");
+      document.getElementById("pause").removeAttribute("disabled");
+    }
+
+    function onClickPause() {
+      document.getElementById("go").removeAttribute("disabled");
+      document.getElementById("pause").setAttribute("disabled", "true");
+      clearTimeout(t);
+    }
+
+    function onClickNext() {
+      s.filterNext();
+      onClickPause();
+    }
+
+    function onRangeChange(target) {
+      speed[0] = Number(target.value);
+    }
+
+    function toggleWiggling(target) {
+      wiggling = !wiggling;
+      if (wiggling) {
+        target.innerText = "Wiggling: on"
+        for (const p of document.getElementById("board").children) {
+          if (!p.wiggling) continue;
+          p.classList.remove("paused");
+        }
+      } else {
+        target.innerText = "Wiggling: off"
+        for (const p of document.getElementById("board").children) {
+          if (!p.wiggling) continue;
+          p.classList.add("paused");
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Ripples for all (ripple-)buttons!
+      const buttons = document.getElementsByClassName("ripple-button");
+      for (const button of buttons) {
+        button.addEventListener("click", createRipple);
+      }
+
+      document.getElementById("speed").value = speed[0];
+    }, {once: true});
+  </script>
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <main>
+    <h1>Sieve of Eratosthenes</h1>
+    <div class="collapser">
+      <section id="explanation">
+        <div class="alert-icon"><svg class="svg-icon-root" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="InfoOutlinedIcon"><path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20, 12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10, 10 0 0,0 12,2M11,17H13V11H11V17Z"></path></svg></div>
+        <div class="alert-msg"><div class="alert-title">Explanation</div>An algorithm for finding prime numbers. We iterate all numbers starting with two. Two is prime. Any subsequent number is prime if it cannot be divided by any of the previous primes found.</div>
+        <div class="alert-action"><button onclick="collapseExplanation()" class="close-button-root" tabindex="0" type="button" aria-label="Close" title="Close"><svg class="svg-icon-root small" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="CloseIcon"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button></div>
+      </section>
+    </div>
+    <div id="tools">
+      <div style="display: grid; grid-template-columns: 1fr 1fr;">
+        <button onclick="onClickShowMode(this)" class="ripple-button">Showing all</button>
+        <button onclick="toggleWiggling(this)" class="ripple-button">Wiggling: on</button>
+      </div>
+      <div class="button-group">
+        <button id="go" onclick="onClickGo()" class="ripple-button">
+          <svg class="svg-icon-root medium" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="PlayArrowIcon"><path d="M8 5v14l11-7z"></path></svg>
+        </button>
+        <button onclick="onClickNext()" class="ripple-button">
+          <svg class="svg-icon-root medium" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="SkipNextIcon"><path d="m6 18 8.5-6L6 6v12zM16 6v12h2V6h-2z"></path></svg>
+        </button>
+        <button disabled id="pause" onclick="onClickPause()" class="ripple-button red">
+          <svg class="svg-icon-root medium" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="PauseIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+        </button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr;">
+        <button id="current" onclick="onClickShowCurrent(this)" class="ripple-button">Current processed number: 1</button>
+        <div style="display: grid; gap: 16px; grid-template-columns: auto 1fr; justify-items: stretch; align-items: center;">
+          <label for="speed">Speed</label>
+          <input oninput="onRangeChange(this)" type="range" id="speed" min="0" max="100" value="10">
+        </div>
+      </div>
+    </div>
+    <section id="board">
+      <div class="number">1</div>
+    </section>
+  </main>
+</body>
+</html>
